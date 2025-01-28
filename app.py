@@ -9,6 +9,25 @@ from io import BytesIO
 
 app = FastAPI()
 
+from fastapi.openapi.utils import get_openapi
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="FastAPI Caption Editor",
+        version="1.0",
+        description="API for processing captions",
+        routes=app.routes,
+    )
+    openapi_schema["servers"] = [
+        {"url": "https://fastapi-caption-editor.onrender.com", "description": "Render Deployment"}
+    ]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
+
 # Setup directories
 output_dir = "output_captions"
 os.makedirs(output_dir, exist_ok=True)
